@@ -2,11 +2,30 @@ import telebot
 import time
 import json
 import os
+from flask import Flask
+from threading import Thread
 
 TOKEN = os.environ.get('BOT_TOKEN')
 ADMIN_ID = int(os.environ.get('ADMIN_ID', '0'))
 bot = telebot.TeleBot(TOKEN)
 DB_FILE = 'subscribers.json'
+
+# --- Веб-сервер для бесплатного тарифа Render ---
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Бот работает!"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+
+keep_alive()
+# ------------------------------------------------
 
 def load_subs():
     if os.path.exists(DB_FILE):
@@ -49,3 +68,4 @@ def broadcast(message):
     bot.reply_to(message, f"Готово. Отправлено: {success}/{len(subs)}")
 
 bot.polling(none_stop=True)
+            
